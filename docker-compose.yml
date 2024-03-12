@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dustapi
+      POSTGRES_PASSWORD: dustapi
+      POSTGRES_DB: dust
+    volumes:
+      - ./sql/setup-db.sql:/docker-entrypoint-initdb.d/setup-db.sql
+    ports:
+      - "5432:5432"

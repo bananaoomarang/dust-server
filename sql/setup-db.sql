@@ -1,0 +1,1 @@
+CREATE TABLE levels(id SERIAL PRIMARY KEY, name VARCHAR(128), data JSONB);
