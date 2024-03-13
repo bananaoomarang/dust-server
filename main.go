@@ -22,6 +22,11 @@ type LevelRes struct {
 	Data string `json:"data"`
 }
 
+type SearchResults struct {
+	Results []LevelRes `json:"results"`
+	HasMore bool `json:"hasMore"`
+}
+
 type PaginationQuery struct {
 	Limit int `form:"limit,default=10"`
 	Offset int `form:"offset,default=0"`
@@ -44,7 +49,10 @@ func main() {
 }
 
 func levelsGET(c *gin.Context) {
-	result := []LevelRes{}
+	result := SearchResults{
+		Results: []LevelRes{},
+		HasMore: false,
+	}
 
 	var pagination_query PaginationQuery
 
@@ -53,8 +61,11 @@ func levelsGET(c *gin.Context) {
 		return
 	}
 
+	//
+	// Fetch one more than Limit to check if there are more lads
+	//
 	q := `SELECT id,name,data FROM levels ORDER BY id ASC LIMIT $1 OFFSET $2`
-	rows, err := Db.Query(q, pagination_query.Limit, pagination_query.Offset)
+	rows, err := Db.Query(q, pagination_query.Limit + 1, pagination_query.Offset)
 
 	if err != nil{
 		c.AbortWithError(500, err)
@@ -67,11 +78,16 @@ func levelsGET(c *gin.Context) {
         if err := rows.Scan(&level.Id, &level.Name, &level.Data); err != nil {
 			c.AbortWithError(500, err)
         }
-		result = append(result, level)
+		result.Results = append(result.Results, level)
 	}
 
 	if err = rows.Err(); err != nil {
 		c.AbortWithError(500, err)
+	}
+
+	if len(result.Results) > pagination_query.Limit {
+		result.HasMore = true
+		result.Results = result.Results[0:pagination_query.Limit]
 	}
 
 	c.JSON(http.StatusOK, result)
