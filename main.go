@@ -23,7 +23,8 @@ type LevelRes struct {
 }
 
 type PaginationQuery struct {
-	Offset int `form:"offset"`
+	Limit int `form:"limit,default=10"`
+	Offset int `form:"offset,default=0"`
 }
 
 func main() {
@@ -52,8 +53,8 @@ func levelsGET(c *gin.Context) {
 		return
 	}
 
-	q := `SELECT id,name,data FROM levels ORDER BY id ASC LIMIT 10 OFFSET $1`
-	rows, err := Db.Query(q, pagination_query.Offset)
+	q := `SELECT id,name,data FROM levels ORDER BY id ASC LIMIT $1 OFFSET $2`
+	rows, err := Db.Query(q, pagination_query.Limit, pagination_query.Offset)
 
 	if err != nil{
 		c.AbortWithError(500, err)
