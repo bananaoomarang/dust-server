@@ -52,7 +52,7 @@ func levelsGET(c *gin.Context) {
 		return
 	}
 
-	q := `SELECT id,name FROM levels ORDER BY id ASC LIMIT 10 OFFSET $1`
+	q := `SELECT id,name,data FROM levels ORDER BY id ASC LIMIT 10 OFFSET $1`
 	rows, err := Db.Query(q, pagination_query.Offset)
 
 	if err != nil{
@@ -63,7 +63,7 @@ func levelsGET(c *gin.Context) {
 
 	for rows.Next() {
 		var level LevelRes
-        if err := rows.Scan(&level.Id, &level.Name); err != nil {
+        if err := rows.Scan(&level.Id, &level.Name, &level.Data); err != nil {
 			c.AbortWithError(500, err)
         }
 		result = append(result, level)
