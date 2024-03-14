@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"strings"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -27,7 +29,8 @@ type SearchResults struct {
 	HasMore bool `json:"hasMore"`
 }
 
-type PaginationQuery struct {
+type SearchQuery struct {
+	Name string `form:"name"`
 	Limit int `form:"limit,default=10"`
 	Offset int `form:"offset,default=0"`
 }
@@ -48,24 +51,49 @@ func main() {
 	router.Run("localhost:8080")
 }
 
+func queryDb(query SearchQuery) (*sql.Rows, error) {
+	if (query.Name != "") {
+		q := `
+SELECT id,
+	name,
+	data
+FROM levels
+
+WHERE ts @@ to_tsquery('english', $1)
+
+LIMIT $2
+OFFSET $3
+`
+		return Db.Query(q, strings.ReplaceAll(query.Name, " ", "+") + ":*", query.Limit + 1, query.Offset)
+	} else {
+		q := `
+SELECT id,
+	name,
+	data
+FROM levels
+
+ORDER BY id ASC
+LIMIT $1
+OFFSET $2
+`
+		return Db.Query(q, query.Limit + 1, query.Offset)
+	}
+}
+
 func levelsGET(c *gin.Context) {
 	result := SearchResults{
 		Results: []LevelRes{},
 		HasMore: false,
 	}
 
-	var pagination_query PaginationQuery
+	var query SearchQuery
 
-	if err := c.BindQuery(&pagination_query); err != nil {
+	if err := c.BindQuery(&query); err != nil {
 		c.AbortWithError(500, err)
 		return
 	}
 
-	//
-	// Fetch one more than Limit to check if there are more lads
-	//
-	q := `SELECT id,name,data FROM levels ORDER BY id ASC LIMIT $1 OFFSET $2`
-	rows, err := Db.Query(q, pagination_query.Limit + 1, pagination_query.Offset)
+	rows, err := queryDb(query)
 
 	if err != nil{
 		c.AbortWithError(500, err)
@@ -85,9 +113,9 @@ func levelsGET(c *gin.Context) {
 		c.AbortWithError(500, err)
 	}
 
-	if len(result.Results) > pagination_query.Limit {
+	if len(result.Results) > query.Limit {
 		result.HasMore = true
-		result.Results = result.Results[0:pagination_query.Limit]
+		result.Results = result.Results[0:query.Limit]
 	}
 
 	c.JSON(http.StatusOK, result)
