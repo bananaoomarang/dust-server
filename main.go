@@ -40,7 +40,7 @@ func main() {
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:5173"},
+		AllowOrigins: []string{"http://localhost:5173", "https://bananaoomarang.github.io"},
 		AllowMethods: []string{"*"},
 		AllowHeaders: []string{"*"},
 	}))
@@ -49,7 +49,7 @@ func main() {
 	router.GET("/levels/:id", levelGET)
 	router.POST("/levels", levelPOST)
 
-	router.Run("localhost:8080")
+	router.Run("0.0.0.0:8080")
 }
 
 func queryDb(query SearchQuery) (*sql.Rows, error) {
