@@ -72,7 +72,7 @@ SELECT id,
 	data
 FROM levels
 
-ORDER BY id ASC
+ORDER BY id DESC
 LIMIT $1
 OFFSET $2
 `
