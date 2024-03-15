@@ -40,7 +40,7 @@ func main() {
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:5173", "https://bananaoomarang.github.io"},
+		AllowOrigins: []string{"http://localhost:5173", "https://dust-ts.pages.dev"},
 		AllowMethods: []string{"*"},
 		AllowHeaders: []string{"*"},
 	}))
