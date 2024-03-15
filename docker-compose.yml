@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_USER: dustapi
       POSTGRES_PASSWORD: dustapi
-      POSTGRES_DB: dust
+      POSTGRES_DB: dust_server
     volumes:
       - ./sql/setup-db.sql:/docker-entrypoint-initdb.d/setup-db.sql
     ports:
