@@ -1,4 +1,4 @@
-module example/web-service-gin
+module dust/dust-server
 
 go 1.22.0
 

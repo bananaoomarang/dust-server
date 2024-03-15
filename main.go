@@ -44,6 +44,7 @@ func main() {
 		AllowMethods: []string{"*"},
 		AllowHeaders: []string{"*"},
 	}))
+	router.GET("/", rootGET)
 	router.GET("/levels", levelsGET)
 	router.GET("/levels/:id", levelGET)
 	router.POST("/levels", levelPOST)
@@ -78,6 +79,12 @@ OFFSET $2
 `
 		return Db.Query(q, query.Limit + 1, query.Offset)
 	}
+}
+
+func rootGET(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"api": "hello",
+	})
 }
 
 func levelsGET(c *gin.Context) {
